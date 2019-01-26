@@ -1,0 +1,5 @@
+.dockerignore
+.git/
+Dockerfile
+egg-tes3mp.json
+Readme.md
