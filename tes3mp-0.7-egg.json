@@ -1,0 +1,26 @@
+{
+    "_comment": "DO NOT EDIT: FILE GENERATED AUTOMATICALLY BY PTERODACTYL PANEL - PTERODACTYL.IO",
+    "meta": {
+        "version": "PTDL_v1"
+    },
+    "exported_at": "2019-01-26T19:52:16+00:00",
+    "name": "tes3mp 0.7",
+    "author": "Flutters@fluttershub.com",
+    "description": "TES3MP is a project adding multiplayer functionality to OpenMW",
+    "image": "mrflutters/tes3mp-egg:0.7.0",
+    "startup": ".\/tes3mp-server",
+    "config": {
+        "files": "{}",
+        "startup": "{\r\n    \"done\": \"TES3MP dedicated server\",\r\n    \"userInteraction\": []\r\n}",
+        "logs": "{\r\n    \"custom\": false,\r\n    \"location\": \"logs\/latest.log\"\r\n}",
+        "stop": "^C"
+    },
+    "scripts": {
+        "installation": {
+            "script": "# #\/bin\/bash\r\napt update\r\napt-get install -y curl\r\nuseradd -ms \/bin\/bash container\r\nchown container:nogroup \/home\/container\r\ncd \/home\/container\r\ncurl -O -J -L https:\/\/github.com\/TES3MP\/openmw-tes3mp\/releases\/download\/0.7.0-alpha\/tes3mp-server-GNU+Linux-x86_64-release-0.7.0-alpha-0df32accca-edbcae5b0e.tar.gz\r\ntar -xzf *.tar.gz\r\nrm *.tar.gz\r\ncp -r TES3MP-server\/* \/mnt\/server\/",
+            "container": "debian:8-slim",
+            "entrypoint": "bash"
+        }
+    },
+    "variables": []
+}
