@@ -8,7 +8,14 @@ RUN apt-get update && \
     apt-get install -y -qq \
     curl \
     libgl1-mesa-swx11 \
+    libqt5widgets5 \
+    libasound2 \
+    libpulse0 \
+    libxss1 \
+    libxrandr2 \
     libluajit-5.1-2 \
+    libxxf86vm1  \
+    libwayland-cursor0 \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 
