@@ -12,7 +12,7 @@ RUN apt-get update && \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 
-RUN useradd -ms /bin/bash ${USER} \
+RUN useradd -u 500 -ms /bin/bash ${USER} \
     && chown ${USER}:nogroup ${HOME} \
     && cd ${HOME}
 
