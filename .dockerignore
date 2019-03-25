@@ -1,5 +1,6 @@
 .dockerignore
 .git/
 Dockerfile
+install_script.sh
 egg-tes3mp.json
 Readme.md
