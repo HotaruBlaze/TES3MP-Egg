@@ -1,4 +1,4 @@
-FROM debian:8-slim
+FROM debian:9-slim
 
 LABEL Author="MrFlutters <https://github.com/MrFlutters>"
 
@@ -7,8 +7,9 @@ ENV USER=container HOME=/home/container
 RUN apt-get update && \
     apt-get install -y -qq \
     curl \
-    libgl1-mesa-swx11 \
+    libgl1-mesa-glx \
     libluajit-5.1-2 \
+    libssl1.1 \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 
