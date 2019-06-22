@@ -30,7 +30,7 @@
             "default_value": "false",
             "user_viewable": 1,
             "user_editable": 1,
-            "rules": "required|boolean"
+            "rules": "required|string"
         }
     ]
 }
