@@ -1,4 +1,4 @@
-FROM debian:9-slim
+FROM debian:unstable-slim
 
 LABEL Author="MrFlutters <https://github.com/MrFlutters>"
 

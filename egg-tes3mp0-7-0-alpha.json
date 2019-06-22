@@ -3,7 +3,7 @@
     "meta": {
         "version": "PTDL_v1"
     },
-    "exported_at": "2019-03-27T14:12:08+00:00",
+    "exported_at": "2019-06-22T11:44:17+00:00",
     "name": "tes3mp 0.7.0-alpha",
     "author": "Flutters@fluttershub.com",
     "description": "TES3MP is a project adding multiplayer functionality to OpenMW",
@@ -22,5 +22,15 @@
             "entrypoint": "bash"
         }
     },
-    "variables": []
+    "variables": [
+        {
+            "name": "AutoPrune Logs",
+            "description": "This will delete logs from \".config\/openmw\" older than 7 days.\r\nDefault: false",
+            "env_variable": "LOG_AUTOPRUNE",
+            "default_value": "false",
+            "user_viewable": 1,
+            "user_editable": 1,
+            "rules": "required|boolean"
+        }
+    ]
 }
