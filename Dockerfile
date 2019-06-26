@@ -9,6 +9,7 @@ RUN apt-get update && \
     curl \
     libgl1-mesa-glx \
     libluajit-5.1-2 \
+    libmysqlclient20 \
     libssl1.1 \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
