@@ -3,7 +3,7 @@
     "meta": {
         "version": "PTDL_v1"
     },
-    "exported_at": "2019-06-22T11:44:17+00:00",
+    "exported_at": "2019-07-04T09:27:30+00:00",
     "name": "tes3mp 0.7.0-alpha",
     "author": "Flutters@fluttershub.com",
     "description": "TES3MP is a project adding multiplayer functionality to OpenMW",
@@ -13,7 +13,7 @@
         "files": "{}",
         "startup": "{\r\n    \"done\": \"TES3MP dedicated server\",\r\n    \"userInteraction\": []\r\n}",
         "logs": "{\r\n    \"custom\": false,\r\n    \"location\": \"logs\/latest.log\"\r\n}",
-        "stop": "^C"
+        "stop": "\\n"
     },
     "scripts": {
         "installation": {
