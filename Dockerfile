@@ -23,4 +23,4 @@ USER ${USER}
 WORKDIR ${HOME}
 
 COPY ./entrypoint.sh /entrypoint.sh
-ENTRYPOINT ["/bin/bash", "/entrypoint.sh" ]
+ ENTRYPOINT ["/bin/bash", "/entrypoint.sh", "--", "./tes3mp-server" ] 
