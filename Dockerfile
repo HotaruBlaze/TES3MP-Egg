@@ -1,4 +1,4 @@
-FROM debian:unstable-slim
+FROM ubuntu:bionic
 
 LABEL Author="MrFlutters <https://github.com/MrFlutters>"
 

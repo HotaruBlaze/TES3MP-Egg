@@ -1,23 +1,28 @@
 {
     "_comment": "DO NOT EDIT: FILE GENERATED AUTOMATICALLY BY PTERODACTYL PANEL - PTERODACTYL.IO",
     "meta": {
-        "version": "PTDL_v1"
+        "version": "PTDL_v1",
+        "update_url": null
     },
-    "exported_at": "2019-07-04T09:27:30+00:00",
-    "name": "tes3mp 0.7.0-alpha",
+    "exported_at": "2022-02-09T07:28:16+00:00",
+    "name": "TES3MP 0.8.0",
     "author": "Flutters@fluttershub.com",
     "description": "TES3MP is a project adding multiplayer functionality to OpenMW",
-    "image": "mrflutters\/tes3mp-egg:0.7.0-alpha",
+    "features": null,
+    "images": [
+        "mrflutters\/tes3mp-egg:0.8.0"
+    ],
+    "file_denylist": [],
     "startup": ".\/tes3mp-server",
     "config": {
         "files": "{}",
         "startup": "{\r\n    \"done\": \"TES3MP dedicated server\",\r\n    \"userInteraction\": []\r\n}",
         "logs": "{\r\n    \"custom\": false,\r\n    \"location\": \"logs\/latest.log\"\r\n}",
-        "stop": "\\n"
+        "stop": "^c"
     },
     "scripts": {
         "installation": {
-            "script": "#!\/bin\/bash\r\napt update\r\napt-get install -y curl jq\r\nuseradd -ms \/bin\/bash container\r\nchown container:nogroup \/home\/container\r\ncd \/home\/container\r\nDOWNLOAD_URL=$(curl -sL https:\/\/api.github.com\/repos\/TES3MP\/openmw-tes3mp\/releases\/tags\/0.7.0-alpha | jq -r \".assets[] | select(.name | contains(\\\"tes3mp-server-GNU+Linux-x86_64\\\")) | .browser_download_url\")\r\ncurl -O -J -L $DOWNLOAD_URL\r\ntar -xzf *.tar.gz\r\nrm *.tar.gz\r\nsed -i -E \"s\/(\\bport = 25565\\b)\/port = $SERVER_PORT\/\" .\/TES3MP-server\/tes3mp-server-default.cfg\r\ncp -r TES3MP-server\/* \/mnt\/server\/",
+            "script": "apt update\r\napt-get install -y curl jq\r\nuseradd -ms \/bin\/bash container\r\nchown container:nogroup \/home\/container\r\ncd \/home\/container\r\nDOWNLOAD_URL=$(curl -sL https:\/\/api.github.com\/repos\/TES3MP\/openmw-tes3mp\/releases\/tags\/tes3mp-0.8.0 | jq -r \".assets[] | select(.name | contains(\\\"tes3mp-server-GNU+Linux-x86_64\\\")) | .browser_download_url\")\r\ncurl -O -J -L $DOWNLOAD_URL\r\ntar -xzvf *.tar.gz\r\nrm *.tar.gz\r\nsed -i -E \"s\/(\\bport = 25565\\b)\/port = $SERVER_PORT\/\" .\/TES3MP-server\/tes3mp-server-default.cfg\r\ncp -r TES3MP-server\/* \/mnt\/server\/",
             "container": "debian:8-slim",
             "entrypoint": "bash"
         }
@@ -28,8 +33,8 @@
             "description": "This will delete logs from \".config\/openmw\" older than 7 days.\r\nDefault: false",
             "env_variable": "LOG_AUTOPRUNE",
             "default_value": "false",
-            "user_viewable": 1,
-            "user_editable": 1,
+            "user_viewable": true,
+            "user_editable": true,
             "rules": "required|string"
         }
     ]

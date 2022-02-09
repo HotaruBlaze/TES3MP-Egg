@@ -2,5 +2,5 @@
 .git/
 Dockerfile
 install_script.sh
-egg-tes3mp0-7-0-alpha.json
+egg-tes3mp-0.8.0.json
 Readme.md
