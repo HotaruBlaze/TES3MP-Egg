@@ -5,12 +5,12 @@
         "update_url": null
     },
     "exported_at": "2022-02-09T07:28:16+00:00",
-    "name": "TES3MP 0.8.0",
+    "name": "TES3MP 0.8.1",
     "author": "Flutters@fluttershub.com",
     "description": "TES3MP is a project adding multiplayer functionality to OpenMW",
     "features": null,
     "images": [
-        "mrflutters\/tes3mp-egg:0.8.0"
+        "mrflutters\/tes3mp-egg:0.8.1"
     ],
     "file_denylist": [],
     "startup": ".\/tes3mp-server",
@@ -22,7 +22,7 @@
     },
     "scripts": {
         "installation": {
-            "script": "apt update\r\napt-get install -y curl jq\r\nuseradd -ms \/bin\/bash container\r\nchown container:nogroup \/home\/container\r\ncd \/home\/container\r\nDOWNLOAD_URL=$(curl -sL https:\/\/api.github.com\/repos\/TES3MP\/openmw-tes3mp\/releases\/tags\/tes3mp-0.8.0 | jq -r \".assets[] | select(.name | contains(\\\"tes3mp-server-GNU+Linux-x86_64\\\")) | .browser_download_url\")\r\ncurl -O -J -L $DOWNLOAD_URL\r\ntar -xzvf *.tar.gz\r\nrm *.tar.gz\r\nsed -i -E \"s\/(\\bport = 25565\\b)\/port = $SERVER_PORT\/\" .\/TES3MP-server\/tes3mp-server-default.cfg\r\ncp -r TES3MP-server\/* \/mnt\/server\/",
+            "script": "apt update\r\napt-get install -y curl jq\r\nuseradd -ms \/bin\/bash container\r\nchown container:nogroup \/home\/container\r\ncd \/home\/container\r\nDOWNLOAD_URL=$(curl -sL https:\/\/api.github.com\/repos\/TES3MP\/openmw-tes3mp\/releases\/tags\/tes3mp-0.8.1 | jq -r \".assets[] | select(.name | contains(\\\"tes3mp-server-GNU+Linux-x86_64\\\")) | .browser_download_url\")\r\ncurl -O -J -L $DOWNLOAD_URL\r\ntar -xzvf *.tar.gz\r\nrm *.tar.gz\r\nsed -i -E \"s\/(\\bport = 25565\\b)\/port = $SERVER_PORT\/\" .\/TES3MP-server\/tes3mp-server-default.cfg\r\ncp -r TES3MP-server\/* \/mnt\/server\/",
             "container": "debian:8-slim",
             "entrypoint": "bash"
         }
