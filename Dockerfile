@@ -1,15 +1,20 @@
-FROM ubuntu:bionic
+FROM arm64v8/ubuntu:22.04
 
 LABEL Author="MrFlutters <https://github.com/MrFlutters>"
 
 ENV USER=container HOME=/home/container
 
-RUN apt-get update && \
-    apt-get install -y -qq \
-    curl \
-    libgl1-mesa-glx \
-    libluajit-5.1-2 \
-    libssl1.1 \
+RUN dpkg --add-architecture armhf \
+    && apt-get update && apt-get upgrade \
+    && apt-get update \
+    && apt-get install -y -qq \
+        curl \
+        libgl1-mesa-glx \
+        libluajit-5.1:armhf \
+        zlib1g:armhf \
+        gcc-arm-linux-gnueabihf \
+        libstdc++6:armhf \
+        libbz2-1.0:armhf \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 
