@@ -5,7 +5,7 @@ LABEL Author="MrFlutters <https://github.com/MrFlutters>"
 ENV USER=container HOME=/home/container
 
 RUN dpkg --add-architecture armhf \
-    && apt-get update && apt-get upgrade \
+    && apt-get update && apt-get upgrade -y \
     && apt-get update \
     && apt-get install -y -qq \
         curl \
