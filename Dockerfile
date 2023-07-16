@@ -1,6 +1,6 @@
 FROM ubuntu:bionic
 
-LABEL Author="MrFlutters <https://github.com/MrFlutters>"
+LABEL Author="hotarublaze <https://github.com/hotarublaze>"
 
 ENV USER=container HOME=/home/container
 
