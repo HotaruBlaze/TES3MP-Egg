@@ -1,6 +1,6 @@
 FROM arm64v8/ubuntu:22.04
 
-LABEL Author="MrFlutters <https://github.com/MrFlutters>"
+LABEL Author="hotarublaze <https://github.com/hotarublaze>"
 
 ENV USER=container HOME=/home/container
 
