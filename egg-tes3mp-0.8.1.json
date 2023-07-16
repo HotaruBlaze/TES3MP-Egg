@@ -23,7 +23,7 @@
     "scripts": {
         "installation": {
             "script": "apt update\r\napt-get install -y curl jq\r\nuseradd -ms \/bin\/bash container\r\nchown container:nogroup \/home\/container\r\ncd \/home\/container\r\nDOWNLOAD_URL=$(curl -sL https:\/\/api.github.com\/repos\/TES3MP\/openmw-tes3mp\/releases\/tags\/tes3mp-0.8.1 | jq -r \".assets[] | select(.name | contains(\\\"tes3mp-server-GNU+Linux-x86_64\\\")) | .browser_download_url\")\r\ncurl -O -J -L $DOWNLOAD_URL\r\ntar -xzvf *.tar.gz\r\nrm *.tar.gz\r\nsed -i -E \"s\/(\\bport = 25565\\b)\/port = $SERVER_PORT\/\" .\/TES3MP-server\/tes3mp-server-default.cfg\r\ncp -r TES3MP-server\/* \/mnt\/server\/",
-            "container": "debian:8-slim",
+            "container": "debian:buster-slim",
             "entrypoint": "bash"
         }
     },
