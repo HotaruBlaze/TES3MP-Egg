@@ -10,7 +10,7 @@
     "description": "TES3MP is a project adding multiplayer functionality to OpenMW",
     "features": null,
     "docker_images": {
-        "mrflutters\/tes3mp-egg:0.8.1": "mrflutters\/tes3mp-egg:0.8.1"
+        "hotarublaze\/tes3mp-egg:0.8.1": "hotarublaze\/tes3mp-egg:0.8.1"
     },
     "file_denylist": [],
     "startup": ".\/tes3mp-server",
