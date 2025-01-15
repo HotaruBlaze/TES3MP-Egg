@@ -1,4 +1,4 @@
-FROM ubuntu:bionic
+FROM debian:bookworm
 
 LABEL Author="hotarublaze <https://github.com/hotarublaze>"
 
@@ -9,7 +9,7 @@ RUN apt-get update && \
     curl \
     libgl1-mesa-glx \
     libluajit-5.1-2 \
-    libssl1.1 \
+    libssl3 \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 
