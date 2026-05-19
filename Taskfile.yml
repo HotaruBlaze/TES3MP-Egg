@@ -1,0 +1,67 @@
+version: '3'
+
+vars:
+  VERSION: 0.8.1
+  REGISTRY: hotarublaze
+
+tasks:
+  build-base:
+    desc: Build base image (debian + deps only)
+    cmds:
+      - docker build -f dockerfiles/{{.VERSION}}/tes3mp-base.dockerfile -t {{.REGISTRY}}/tes3mp-base:{{.VERSION}} .
+
+  build-debian12:
+    desc: Build debian12 image (FROM base + entrypoint)
+    cmds:
+      - docker build -f dockerfiles/{{.VERSION}}/tes3mp-debian12.dockerfile -t {{.REGISTRY}}/tes3mp-debian12:{{.VERSION}} .
+
+  build-runner:
+    desc: Build runner image (FROM base + Rust binary)
+    cmds:
+      - docker build -f dockerfiles/{{.VERSION}}/tes3mp-runner.dockerfile -t {{.REGISTRY}}/tes3mp-runner:{{.VERSION}} .
+
+  build-test:
+    desc: Build test image (base + TES3MP server installed)
+    cmds:
+      - docker build --build-arg VERSION={{.VERSION}} -f dockerfiles/{{.VERSION}}/tes3mp-test.dockerfile -t {{.REGISTRY}}/tes3mp-test:{{.VERSION}} .
+
+  build-all:
+    desc: Build all Docker images (base, debian12, runner, test)
+    cmds:
+      - task: build-base
+      - task: build-debian12
+      - task: build-runner
+      - task: build-test
+
+  clean:
+    desc: Remove Docker images
+    cmds:
+      - docker rmi {{.REGISTRY}}/tes3mp-base:{{.VERSION}} {{.REGISTRY}}/tes3mp-debian12:{{.VERSION}} {{.REGISTRY}}/tes3mp-runner:{{.VERSION}} {{.REGISTRY}}/tes3mp-test:{{.VERSION}} 2>/dev/null || true
+
+  rebuild:
+    desc: Clean and rebuild all images
+    cmds:
+      - task: clean
+      - task: build-all
+
+  push-base:
+    desc: Push base image to registry
+    cmds:
+      - docker push {{.REGISTRY}}/tes3mp-base:{{.VERSION}}
+
+  push-debian12:
+    desc: Push debian12 image to registry
+    cmds:
+      - docker push {{.REGISTRY}}/tes3mp-debian12:{{.VERSION}}
+
+  push-runner:
+    desc: Push runner image to registry
+    cmds:
+      - docker push {{.REGISTRY}}/tes3mp-runner:{{.VERSION}}
+
+  push-all:
+    desc: Push all images to registry
+    cmds:
+      - task: push-base
+      - task: push-debian12
+      - task: push-runner

@@ -10,15 +10,15 @@
     "description": "TES3MP is a project adding multiplayer functionality to OpenMW",
     "features": null,
     "docker_images": {
-        "hotarublaze\/tes3mp-egg:0.8.1-debian12": "hotarublaze\/tes3mp-egg:0.8.1-debian12"
+        "hotarublaze\/tes3mp-egg:0.8.1-debian12": "hotarublaze/tes3mp-egg:0.8.1-debian12"
     },
     "file_denylist": [],
-    "startup": ".\/tes3mp-server",
+    "startup": "./tes3mp-runner",
     "config": {
         "files": "{}",
         "startup": "{\r\n    \"done\": \"TES3MP dedicated server\",\r\n    \"userInteraction\": []\r\n}",
         "logs": "{\r\n    \"custom\": false,\r\n    \"location\": \"logs\/latest.log\"\r\n}",
-        "stop": "\\n"
+        "stop": "\n"
     },
     "scripts": {
         "installation": {
@@ -32,6 +32,36 @@
             "name": "AutoPrune Logs",
             "description": "This will delete logs from \".config\/openmw\" older than 7 days.\r\nDefault: false",
             "env_variable": "LOG_AUTOPRUNE",
+            "default_value": "false",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string",
+            "field_type": "text"
+        },
+        {
+            "name": "Shutdown Timeout",
+            "description": "Graceful shutdown timeout in seconds.\r\nDefault: 30",
+            "env_variable": "SHUTDOWN_TIMEOUT",
+            "default_value": "30",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|integer|between:5,300",
+            "field_type": "text"
+        },
+        {
+            "name": "TES3MP Path",
+            "description": "Path to the TES3MP server directory.\r\nDefault: /mnt/server",
+            "env_variable": "TES3MP_PATH",
+            "default_value": "/mnt/server",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string",
+            "field_type": "text"
+        },
+        {
+            "name": "Check Public IP",
+            "description": "Fetch and display public IP on startup to help diagnose NAT issues.\r\nDefault: false",
+            "env_variable": "CHECK_PUBLIC_IP",
             "default_value": "false",
             "user_viewable": true,
             "user_editable": true,

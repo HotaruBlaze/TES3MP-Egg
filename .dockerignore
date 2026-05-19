@@ -1,6 +1,11 @@
 .dockerignore
 .git/
+target/
+Cargo.lock
+*.pdb
+.vscode/
+.idea/
 Dockerfile
-install_script.sh
-egg-tes3mp-0.8.0.json
+egg-tes3mp-0.8.1.json
 Readme.md
+LICENSE

@@ -1,14 +1,3 @@
-FROM rust:1.92-bookworm AS builder
-
-WORKDIR /build
-
-COPY Cargo.toml ./
-COPY src ./src
-
-RUN apt-get update && apt-get install -y -qq clang lld && rm -rf /var/lib/apt/lists/*
-
-RUN cargo build --release
-
 FROM debian:bookworm-slim
 
 LABEL Author="hotarublaze <https://github.com/hotarublaze>"
@@ -16,7 +5,7 @@ LABEL Author="hotarublaze <https://github.com/hotarublaze>"
 ENV USER=container HOME=/home/container
 
 RUN apt-get update && \
-    apt-get install -y -qq \
+    apt-get install -y -qq --no-install-recommends \
     curl \
     libgl1-mesa-glx \
     libluajit-5.1-2 \
@@ -29,10 +18,6 @@ RUN useradd -u 500 -ms /bin/bash ${USER} \
     && mkdir -p ${HOME}/logs \
     && cd ${HOME}
 
-COPY --from=builder /build/target/release/tes3mp-runner /usr/local/bin/tes3mp-runner
-
 USER ${USER}
 
 WORKDIR ${HOME}
-
-ENTRYPOINT ["/usr/local/bin/tes3mp-runner"]
