@@ -1,4 +1,5 @@
-FROM debian:trixie-slim
+ARG DEBIAN_BASE=trixie
+FROM debian:${DEBIAN_BASE}-slim
 
 LABEL Author="hotarublaze <https://github.com/hotarublaze>"
 

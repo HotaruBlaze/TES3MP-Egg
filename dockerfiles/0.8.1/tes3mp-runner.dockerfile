@@ -1,11 +1,11 @@
-FROM rust:1.92-trixie AS builder
+ARG DEBIAN_BASE=trixie
+FROM rust:1.92-${DEBIAN_BASE} AS builder
 
+RUN apt-get update && apt-get install -y -qq clang lld && rm -rf /var/lib/apt/lists/*
 WORKDIR /build
 
 COPY Cargo.toml ./
 COPY src ./src
-
-RUN apt-get update && apt-get install -y -qq clang lld && rm -rf /var/lib/apt/lists/*
 
 RUN cargo build --release
 

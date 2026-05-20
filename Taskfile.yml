@@ -3,22 +3,18 @@ version: '3'
 vars:
   VERSION: 0.8.1
   REGISTRY: hotarublaze
+  DEBIAN_BASE: trixie
 
 tasks:
   build-base:
     desc: Build base image (debian + deps only)
     cmds:
-      - docker build -f dockerfiles/{{.VERSION}}/tes3mp-base.dockerfile -t {{.REGISTRY}}/tes3mp-base:{{.VERSION}} .
-
-  build-debian12:
-    desc: Build debian12 image (FROM base + entrypoint)
-    cmds:
-      - docker build -f dockerfiles/{{.VERSION}}/tes3mp-debian12.dockerfile -t {{.REGISTRY}}/tes3mp-debian12:{{.VERSION}} .
+      - docker build --build-arg DEBIAN_BASE={{.DEBIAN_BASE}} -f dockerfiles/{{.VERSION}}/tes3mp-base.dockerfile -t {{.REGISTRY}}/tes3mp-base:{{.VERSION}} .
 
   build-runner:
     desc: Build runner image (FROM base + Rust binary)
     cmds:
-      - docker build -f dockerfiles/{{.VERSION}}/tes3mp-runner.dockerfile -t {{.REGISTRY}}/tes3mp-runner:{{.VERSION}} .
+      - docker build --build-arg DEBIAN_BASE={{.DEBIAN_BASE}} -f dockerfiles/{{.VERSION}}/tes3mp-runner.dockerfile -t {{.REGISTRY}}/tes3mp-runner:{{.VERSION}}-{{.DEBIAN_BASE}} .
 
   build-test:
     desc: Build test image (base + TES3MP server installed)
@@ -26,7 +22,7 @@ tasks:
       - docker build --build-arg VERSION={{.VERSION}} -f dockerfiles/{{.VERSION}}/tes3mp-test.dockerfile -t {{.REGISTRY}}/tes3mp-test:{{.VERSION}} .
 
   build-all:
-    desc: Build all Docker images (base, debian12, runner, test)
+    desc: Build all Docker images (base, debian, runner, test)
     cmds:
       - task: build-base
       - task: build-debian12
@@ -57,7 +53,7 @@ tasks:
   push-runner:
     desc: Push runner image to registry
     cmds:
-      - docker push {{.REGISTRY}}/tes3mp-runner:{{.VERSION}}
+      - docker push {{.REGISTRY}}/tes3mp-runner:{{.VERSION}}-{{.DEBIAN_BASE}}
 
   push-all:
     desc: Push all images to registry

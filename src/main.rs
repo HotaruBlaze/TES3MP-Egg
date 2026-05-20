@@ -1,12 +1,14 @@
 use clap::Parser;
 use regex::Regex;
 use std::error::Error;
+use std::fs;
 use std::io::Write;
 use std::path::PathBuf;
 use std::process::Stdio;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use std::time::Duration;
+use tempfile::tempdir;
 use tokio::io::{AsyncBufReadExt, BufReader};
 use tokio::process::{Child, Command};
 use tokio::sync::Mutex;
@@ -36,6 +38,9 @@ struct Args {
 
     #[arg(long, default_value = "info", env = "LOG_LEVEL")]
     log_level: String,
+
+    #[arg(long, default_value_t = false, env = "USE_DREAMWEAVE_LUAJIT")]
+    use_dreamweave_luajit: bool,
 }
 
 static SHUTTING_DOWN: AtomicBool = AtomicBool::new(false);
@@ -122,6 +127,62 @@ fn fetch_public_ip_curl() -> Result<String, Box<dyn std::error::Error>> {
     }
 
     Err("Invalid IP".into())
+}
+
+fn download_luajit() -> Option<PathBuf> {
+    const LUAJIT_URL: &str = "https://github.com/DreamWeave-MP/luajit2/releases/download/Stable-CI/LuaJIT-Linux.7z";
+    const LUAJIT_LIB_PATH: &str = "bin/libluajit.so";
+
+    tracing::info!("Dreamweave LuaJIT enabled, downloading...");
+
+    // Create a temporary directory
+    let temp_dir = tempdir().ok()?;
+    let temp_path = temp_dir.path();
+
+    // Download the 7z file
+    let archive_path = temp_path.join("LuaJIT-Linux.7z");
+    let client = reqwest::blocking::Client::builder()
+        .timeout(Duration::from_secs(30))
+        .build()
+        .ok()?;
+
+    tracing::info!("Downloading LuaJIT from {}", LUAJIT_URL);
+    let mut response = client.get(LUAJIT_URL).send().ok()?;
+    if !response.status().is_success() {
+        tracing::error!("Failed to download LuaJIT: HTTP {}", response.status());
+        return None;
+    }
+
+    let mut file = fs::File::create(&archive_path).ok()?;
+    std::io::copy(&mut response, &mut file).ok()?;
+
+    // Extract the 7z file
+    tracing::info!("Extracting LuaJIT archive...");
+    match sevenz_rust::decompress_file(&archive_path, temp_path) {
+        Ok(_) => {
+            let lib_path = temp_path.join(LUAJIT_LIB_PATH);
+            if lib_path.exists() {
+                // Set execute permissions
+                #[cfg(unix)]
+                {
+                    use std::os::unix::fs::PermissionsExt;
+                    let mut perms = fs::metadata(&lib_path).ok()?.permissions();
+                    perms.set_mode(0o755);
+                    fs::set_permissions(&lib_path, perms).ok()?;
+                }
+                tracing::info!("Using Dreamweave LuaJIT loaded from: {}", lib_path.display());
+                // Leak the temp dir to keep it alive
+                Some(temp_dir.keep())
+            } else {
+                tracing::error!("libluajit.so not found in extracted archive");
+                None
+            }
+        }
+        Err(e) => {
+            tracing::error!("Failed to extract LuaJIT archive: {}", e);
+            None
+        }
+    }
 }
 
 fn check_nat_issue(local_address: &str, public_ip: &str, port: u16) {
@@ -311,7 +372,7 @@ fn get_tes3mp_executable(path: &PathBuf) -> PathBuf {
     }
 }
 
-async fn spawn_tes3mp(tes3mp_path: &PathBuf) -> std::io::Result<Child> {
+async fn spawn_tes3mp(tes3mp_path: &PathBuf, ld_preload: Option<&PathBuf>) -> std::io::Result<Child> {
     let exe = get_tes3mp_executable(tes3mp_path);
 
     tracing::info!("Starting TES3MP from: {}", exe.display());
@@ -319,25 +380,37 @@ async fn spawn_tes3mp(tes3mp_path: &PathBuf) -> std::io::Result<Child> {
     #[cfg(not(windows))]
     {
         let lib_path = tes3mp_path.join("lib");
-        let child = Command::new(&exe)
+        let mut child_builder = Command::new(&exe);
+        child_builder
             .env("LD_LIBRARY_PATH", lib_path)
             .env_remove("RUST_BACKTRACE")
             .current_dir(tes3mp_path)
             .stdout(Stdio::piped())
-            .stderr(Stdio::piped())
-            .spawn()?;
+            .stderr(Stdio::piped());
+
+        if let Some(preload_path) = ld_preload {
+            let luajit_lib = preload_path.join("bin/libluajit.so");
+            tracing::info!("Setting LD_PRELOAD to: {}", luajit_lib.display());
+            child_builder.env("LD_PRELOAD", luajit_lib);
+        }
+
+        let child = child_builder.spawn()?;
 
         Ok(child)
     }
 
     #[cfg(windows)]
     {
-        let child = Command::new(&exe)
+        let mut child_builder = Command::new(&exe);
+        child_builder
             .env_remove("RUST_BACKTRACE")
             .current_dir(tes3mp_path)
             .stdout(Stdio::piped())
-            .stderr(Stdio::piped())
-            .spawn()?;
+            .stderr(Stdio::piped());
+
+        let _ = ld_preload;
+
+        let child = child_builder.spawn()?;
 
         Ok(child)
     }
@@ -564,9 +637,16 @@ async fn main() -> anyhow::Result<()> {
         autoprune_logs(&args.tes3mp_path);
     }
 
+    // Handle Dreamweave LuaJIT if enabled
+    let ld_preload_path: Option<PathBuf> = if args.use_dreamweave_luajit {
+        download_luajit()
+    } else {
+        None
+    };
+
     SHUTTING_DOWN.store(false, Ordering::SeqCst);
 
-    let child = Arc::new(Mutex::new(Some(spawn_tes3mp(&args.tes3mp_path).await?)));
+    let child = Arc::new(Mutex::new(Some(spawn_tes3mp(&args.tes3mp_path, ld_preload_path.as_ref()).await?)));
 
     #[cfg(unix)]
     {

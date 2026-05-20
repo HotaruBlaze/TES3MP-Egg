@@ -10,7 +10,7 @@
     "description": "TES3MP is a project adding multiplayer functionality to OpenMW",
     "features": null,
     "docker_images": {
-        "hotarublaze\/tes3mp-egg:0.8.1-debian12": "hotarublaze/tes3mp-runner:0.8.1"
+        "hotarublaze\/tes3mp-runner:0.8.1-trixie ": "hotarublaze/tes3mp-runner:0.8.1-trixie"
     },
     "file_denylist": [],
     "startup": "./tes3mp-runner",
