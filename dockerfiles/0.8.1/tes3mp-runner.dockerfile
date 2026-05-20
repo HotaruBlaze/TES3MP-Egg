@@ -1,4 +1,4 @@
-FROM rust:1.92-bookworm AS builder
+FROM rust:1.92-trixie AS builder
 
 WORKDIR /build
 
@@ -11,6 +11,11 @@ RUN cargo build --release
 
 FROM hotarublaze/tes3mp-base:0.8.1
 
+USER root
 COPY --from=builder /build/target/release/tes3mp-runner /usr/local/bin/tes3mp-runner
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+USER container
 
-ENTRYPOINT ["/usr/local/bin/tes3mp-runner"]
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["/usr/local/bin/tes3mp-runner"]

@@ -1,5 +1,6 @@
 use clap::Parser;
 use regex::Regex;
+use std::error::Error;
 use std::io::Write;
 use std::path::PathBuf;
 use std::process::Stdio;
@@ -32,6 +33,9 @@ struct Args {
 
     #[arg(long, default_value_t = false, env = "CHECK_PUBLIC_IP")]
     check_public_ip: bool,
+
+    #[arg(long, default_value = "info", env = "LOG_LEVEL")]
+    log_level: String,
 }
 
 static SHUTTING_DOWN: AtomicBool = AtomicBool::new(false);
@@ -60,15 +64,64 @@ fn parse_config(path: &PathBuf) -> Option<(u16, String)> {
 }
 
 fn fetch_public_ip() -> Option<String> {
-    reqwest::blocking::Client::builder()
+    if let Ok(ip) = fetch_public_ip_curl() {
+        return Some(ip);
+    }
+
+    let client = reqwest::blocking::Client::builder()
         .timeout(Duration::from_secs(5))
         .build()
-        .ok()?
-        .get("https://api.ipify.org")
-        .send()
-        .ok()?
-        .text()
-        .ok()
+        .ok()?;
+
+    let endpoints = [
+        "https://api.ipify.org",
+        "https://ifconfig.me/ip",
+        "https://icanhazip.com",
+        "https://checkip.amazonaws.com",
+    ];
+
+    for endpoint in endpoints {
+        tracing::debug!("Trying IP endpoint: {}", endpoint);
+        match client.get(endpoint).send() {
+            Ok(response) => {
+                tracing::debug!("Response status: {}", response.status());
+                match response.text() {
+                    Ok(ip) => {
+                        let ip = ip.trim().to_string();
+                        tracing::debug!("Got IP: {}", ip);
+                        if !ip.is_empty() && ip.parse::<std::net::IpAddr>().is_ok() {
+                            return Some(ip);
+                        }
+                    }
+                    Err(e) => tracing::debug!("Failed to read response: {}", e),
+                }
+            }
+            Err(e) => {
+                let error_str = if let Some(source) = e.source() {
+                    format!("{}: {}", e, source)
+                } else {
+                    e.to_string()
+                };
+                tracing::warn!("Request to {} failed: {}", endpoint, error_str);
+            }
+        }
+    }
+
+    None
+}
+
+fn fetch_public_ip_curl() -> Result<String, Box<dyn std::error::Error>> {
+    let output = std::process::Command::new("curl")
+        .args(["-s", "https://api.ipify.org"])
+        .output()?;
+
+    let ip = String::from_utf8_lossy(&output.stdout).trim().to_string();
+    if ip.parse::<std::net::IpAddr>().is_ok() {
+        tracing::info!("Fetched public IP via curl: {}", ip);
+        return Ok(ip);
+    }
+
+    Err("Invalid IP".into())
 }
 
 fn check_nat_issue(local_address: &str, public_ip: &str, port: u16) {
@@ -183,12 +236,15 @@ loop {
     }
 }
 
-fn setup_logging() {
+fn setup_logging(log_level: &str) {
     use tracing_subscriber::prelude::*;
     use tracing_subscriber::{fmt, EnvFilter, Registry};
 
-    let filter = EnvFilter::try_from_default_env()
-        .unwrap_or_else(|_| EnvFilter::new("info"));
+    let filter = if std::env::var("RUST_LOG").is_ok() {
+        EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new(log_level))
+    } else {
+        EnvFilter::new(log_level)
+    };
 
     let subscriber = Registry::default()
         .with(filter)
@@ -468,9 +524,9 @@ fn is_atty() -> bool {
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    setup_logging();
-
     let args = Args::parse();
+
+    setup_logging(&args.log_level);
 
     tracing::info!("TES3MP Runner v{}", env!("CARGO_PKG_VERSION"));
     tracing::info!("Server port: {}", args.server_port);

@@ -1,4 +1,4 @@
-FROM debian:bookworm-slim
+FROM debian:trixie-slim
 
 LABEL Author="hotarublaze <https://github.com/hotarublaze>"
 
@@ -7,9 +7,11 @@ ENV USER=container HOME=/home/container
 RUN apt-get update && \
     apt-get install -y -qq --no-install-recommends \
     curl \
-    libgl1-mesa-glx \
+    ca-certificates \
+    libgl1 \
     libluajit-5.1-2 \
-    libssl3 \
+    libssl3t64 \
+    p7zip-full \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 
